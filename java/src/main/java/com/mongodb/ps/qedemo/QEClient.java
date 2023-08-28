@@ -8,7 +8,6 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.model.CreateCollectionOptions;
 import com.mongodb.client.model.CreateEncryptedCollectionParams;
 import com.mongodb.client.vault.ClientEncryptions;
-import com.mongodb.ps.qedemo.model.SchemaInfo;
 import org.bson.Document;
 
 import java.util.HashMap;
@@ -24,8 +23,8 @@ public class QEClient extends BenchClient {
     AutoEncryptionSettings autoEncSettings;
     Document encFieldMap;
 
-    public QEClient(String uri, Map<String, Object> metadata, SchemaInfo schema) {
-        super(uri, metadata, schema);
+    public QEClient(String uri, Map<String, Object> metadata) {
+        super(uri, metadata);
         kmsProvider = (String) metadata.get("kmsProvider");
         keyvaultDbName = (String) metadata.get("keyvaultDbName");
         keyvaultCollName = (String) metadata.get("keyvaultCollName");
@@ -34,8 +33,7 @@ public class QEClient extends BenchClient {
         autoEncSettings = Helpers.getAutoEncryptionSettings(kmsProvider, kvNs, kmsProviderCreds);
         connParams = new HashMap<>();
         connParams.put("autoEncryptionOpts", autoEncSettings);
-//        encFieldMap = getEncFieldMap();
-        encFieldMap = schema.encryptedFieldMap();
+        encFieldMap = getEncFieldMap();
     }
 
     @Override

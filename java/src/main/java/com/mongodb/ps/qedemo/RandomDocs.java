@@ -20,7 +20,6 @@ public class RandomDocs {
     static {
         TYPES.addAll(List.of("Visa", "Check", "Cash", "MasterCard", "Medicare", "Medicard"));
     }
-    public static List<String> names = getNames();
 
 
     public static List<String> getNames() {
@@ -39,6 +38,7 @@ public class RandomDocs {
     }
 
     public static List<String> batchedInsert(int num, MongoCollection<Document> coll, String name, int batchSize) {
+        var names = getNames();
         List<Document> batch = new ArrayList<>();
         List<String> hits = new ArrayList<>();
         int i = 0;
@@ -48,7 +48,7 @@ public class RandomDocs {
                 System.out.printf("%s inserted a batch; Total count: %d out of %d%n", name, i, num);
                 batch = new ArrayList<>();
             }
-            var doc = randDoc();
+            var doc = randDoc(names);
             var pr = (Document) doc.get("patientRecord");
             var ssn =  pr.get("ssn");
             if (i % HIT_RATE == 0) {
@@ -63,7 +63,26 @@ public class RandomDocs {
         return hits;
     }
 
-    public static String randName() {
+    public static List<String> create(int num, MongoCollection<Document> coll, String name) {
+        var names = getNames();
+        List<String> hits = new ArrayList<>();
+        for (int i = 0; i < num;i++) {
+            var doc = randDoc(names);
+            var pr = (Document) doc.get("patientRecord");
+            var ssn = pr.get("ssn");
+            if (i % HIT_RATE == 0) {
+                hits.add(ssn.toString());
+            }
+            coll.insertOne(doc);
+            if (i % REPORT_RATE == 0) {
+                System.out.printf("%s inserted %d of %d%n", name, i, num);
+            }
+        }
+
+        return hits;
+    }
+
+    public static String randName(List<String> names) {
         int idx = rand.nextInt(names.size());
         return names.get(idx);
     }
@@ -82,9 +101,20 @@ public class RandomDocs {
                 digit(), digit(), digit(), digit(), digit(), digit(), digit(), digit(), digit());
     }
 
-    public static Document randDoc() {
+    public static List<String> getMisses(List<String> hits){
+        List<String> output = new ArrayList<>();
+        while (output.size() < hits.size()) {
+            String cand = randSsn();
+            if (!hits.contains(cand)) {
+                output.add(cand);
+            }
+        }
+        return output;
+    }
+
+    public static Document randDoc(List<String> names) {
         var doc = new Document();
-        doc.put("patientName", randName());
+        doc.put("patientName", randName(names));
         doc.put("patientId", rand.nextInt(1_000_000_000));
         var prDoc = new Document();
         prDoc.put("ssn", randSsn());

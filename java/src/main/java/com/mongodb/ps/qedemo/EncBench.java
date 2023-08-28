@@ -1,18 +1,11 @@
 package com.mongodb.ps.qedemo;
 
-import com.mongodb.ps.qedemo.model.FieldInfo;
-import com.mongodb.ps.qedemo.model.SchemaInfo;
-
-import java.util.ArrayList;
 import java.util.Map;
 
 public class EncBench {
     public void exec() {
         var uri = "mongodb://localhost:27017,localhost:27018,localhost:27019";
         var numDocs = 10_000;
-        var fields = new ArrayList<FieldInfo>();
-        fields.add(new FieldInfo("patientRecord.ssn", "string", true, RandomDocs::randSsn));
-        var schema = new SchemaInfo("medicalRecords", "patients", fields);
 
         execPlainClient(uri, numDocs);
 //

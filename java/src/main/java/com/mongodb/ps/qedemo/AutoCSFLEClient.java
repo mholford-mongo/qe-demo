@@ -50,7 +50,7 @@ public class AutoCSFLEClient extends BenchClient {
                                            Map<String, Map<String, Object>> kmsProviderCreds) {
         var schemaMap = getSchemaMap();
         Map<String, BsonDocument> schemaMapMap = new HashMap<>();
-        schemaMapMap.put(String.format("%s.%s", metadata.get("db"), metadata.get("coll")), schemaMap);
+        schemaMapMap.put("medicalRecords.patients", schemaMap);
         Map<String, Object> extras = new HashMap<>();
         extras.put("cryptSharedLibPath", Helpers.env("SHARED_LIB_PATH"));
         return AutoEncryptionSettings.builder()
