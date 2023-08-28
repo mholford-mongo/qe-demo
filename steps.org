@@ -1,0 +1,124 @@
+* QE Demo
+** Following Quick start app in Mongo 7.0 docs
+[[https://github.com/mongodb/docs/tree/master/source/includes/qe-tutorials/mongosh][github link]]
+
+*** Install MDB 7-ent
+
+#+begin_src shell
+  m 7.0.0-ent
+#+end_src
+
+*** Install direnv
+
+#+begin_src shell
+  brew install direnv
+#+end_src
+
+*** Checkout the demo
+
+**** Checking out part of a project from Git
+
+#+begin_src shell
+  git init
+  git remote add -f origin https://github.com/mongodb/docs.git
+  git config core.sparsecheckout true
+  echo source/includes/qe-tutorials >> .git/info/sparse-checkout
+  git pull origin master
+#+end_src
+
+*** Create MDB 7.0 replicaset locally
+#+begin_src shell
+  mlaunch init --replicaset --binarypath $(m bin 7.0.0-ent)  
+#+end_src
+
+*** Mongosh demo reqs
+Set MONGODB_URI, AWS_ACCESS_KEY and AWS_SECRET_ACCESS_KEY in .envrc
+
+IMPORTANT: Don't use homebrew mongosh
+instead, download from the mdb downloads page
+
+*** Pytho demo reqs
+Set MONGODB_URI, AWS_ACCESS_KEY, SHARED_LIB_PATH and AWS_SECRET_ACCESS_KEY in .envrc
+For SHARED_LIB_PATH you need to dl the shared encryption lib ([[https://www.mongodb.com/docs/v7.0/core/queryable-encryption/reference/shared-library/#std-label-qe-reference-shared-library][here]])
+Make sure all dependencies in requirements.txt are present
+
+*** Local provider
+Generate random 96-byte key and write to file
+Read as $x into config doc:
+#+begin_src js
+  "local": {
+    "key": $a
+  }
+#+end_src
+customer_master_key_credentials is {} for this provider
+
+**** Python
+populate AutoEncryptionOpts with kms_provider_credentials, key_vault_namespace and crypt_shared_lib_path
+pass to MongoClient
+#+begin_src python
+  encrypted_client = MongoClient(uri, auto_encryption_opts=..)
+#+end_src
+
+***** Set up encrypted_fields_map
+for each field,
+- path to field
+- bsonType
+- queries (optional list of queryTypes)
+e.g.:
+#+begin_src python
+  encrypted_fields_map = {
+    "fields": [
+        {
+            "path": "patientRecord.ssn",
+            "bsonType": "string",
+            "queries": [{"queryType": "equality"}]
+        },
+        {
+            "path": "patientRecord.billing",
+            "bsonType": "object",
+        }
+    ]
+}
+#+end_src
+
+***** Get ClientEnctyption object
+pass in kms provider credentials, key vault ns, key vault client and codec_options
+#+begin_src python
+  client_encryption = ClientEncryption(
+        kms_providers=kms_provider_credentials,
+        key_vault_namespace=key_vault_namespace,
+        key_vault_client=client,
+        codec_options=CodecOptions(uuid_representation=STANDARD)
+    )
+#+end_src
+
+***** Use the ClientEncryption object to create an encrypted collection
+pass in encrypted client, coll name, encrypted fields map, kms provider and master key
+e.g.:
+#+begin_src python
+  client_encryption.create_encrypted_collection(
+        encrypted_client[encrypted_database_name],
+        encrypted_collection_name,
+        encrypted_fields_map,
+        kms_provider_name,
+        customer_master_key_credentials,
+    )
+#+end_src
+
+***** Insert docs
+Example:
+#+begin_src python
+  patient_document = {
+    "patientName": "Jon Doe",
+    "patientId": 12345678,
+    "patientRecord": {
+        "ssn": "987-65-4320",
+        "billing": {
+            "type": "Visa",
+            "number": "4111111111111111",
+        },
+    },
+}
+#+end_src
+
+Observer that patientName and patientId appear in clear text
