@@ -73,6 +73,9 @@ public class RandomDocs {
         return TYPES.get(idx);
     }
 
+    public static int randBillingNumber() {
+        return rand.nextInt(1_000_000_000);
+    }
     public static String digit() {
         return String.valueOf(rand.nextInt(10));
     }

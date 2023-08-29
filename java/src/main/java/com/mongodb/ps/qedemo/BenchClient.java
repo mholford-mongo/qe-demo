@@ -10,7 +10,6 @@ import com.mongodb.ps.qedemo.model.SchemaInfo;
 import org.bson.Document;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +19,7 @@ import static com.mongodb.ps.qedemo.RandomDocs.randDoc;
 import static com.mongodb.ps.qedemo.Utils.getMisses;
 import static com.mongodb.ps.qedemo.Utils.getNested;
 
-public abstract class BenchClient {
+public class BenchClient {
     protected MongoCollection<Document> coll;
     protected List<String> hits;
     protected String uri;
@@ -38,8 +37,8 @@ public abstract class BenchClient {
         this.uri = uri;
         this.metadata = metadata;
         this.connParams = new HashMap<>();
-        this.dbName = (String) metadata.get("db");
-        this.collName = (String) metadata.get("coll");
+        this.dbName = schema.getDbName();
+        this.collName = schema.getCollName();
         this.hitRate = (int) metadata.get("hitRate");
         this.reportRate = (int) metadata.get("reportRate");
         this.schema = schema;
@@ -52,6 +51,7 @@ public abstract class BenchClient {
         client = MongoClients.create(clientSettings);
         coll = client.getDatabase(dbName).getCollection(collName);
         coll.drop();
+        hitMap = new HashMap<>();
     }
 
     public void insert(int numDocs) {
@@ -141,5 +141,7 @@ public abstract class BenchClient {
         return System.currentTimeMillis();
     }
 
-    public abstract String getName();
+    public String getName() {
+        return "PlainClient";
+    }
 }

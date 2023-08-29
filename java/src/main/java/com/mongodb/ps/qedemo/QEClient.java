@@ -34,7 +34,6 @@ public class QEClient extends BenchClient {
         autoEncSettings = Helpers.getAutoEncryptionSettings(kmsProvider, kvNs, kmsProviderCreds);
         connParams = new HashMap<>();
         connParams.put("autoEncryptionOpts", autoEncSettings);
-//        encFieldMap = getEncFieldMap();
         encFieldMap = schema.encryptedFieldMap();
     }
 
@@ -64,7 +63,7 @@ public class QEClient extends BenchClient {
         encCollParams.masterKey(masterKeyCreds);
 
         clientEnc.createEncryptedCollection(client.getDatabase(dbName), collName, createCollOpts, encCollParams);
-
+        hitMap = new HashMap<>();
     }
 
     private Document getEncFieldMap() {
@@ -86,6 +85,6 @@ public class QEClient extends BenchClient {
 
     @Override
     public String getName() {
-        return "com.mongodb.ps.qedemo.QEClient";
+        return "QEClient";
     }
 }

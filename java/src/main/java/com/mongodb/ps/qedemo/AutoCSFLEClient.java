@@ -7,6 +7,7 @@ import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.model.vault.DataKeyOptions;
 import com.mongodb.client.vault.ClientEncryptions;
+import com.mongodb.ps.qedemo.model.SchemaInfo;
 import org.bson.BsonDocument;
 import org.bson.Document;
 
@@ -17,21 +18,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AutoCSFLEClient extends BenchClient {
-    private final String keyvaultDbName;
-    private final String keyvaultCollName;
     private final String kvNs;
     private final Map<String, Map<String, Object>> kmsProviderCreds;
     AutoEncryptionSettings autoEncSettings;
     String kmsProvider;
 
-    public AutoCSFLEClient(String uri, Map<String, Object> metadata) {
-        super(uri, metadata);
+    public AutoCSFLEClient(String uri, Map<String, Object> metadata, SchemaInfo schema) {
+        super(uri, metadata, schema);
         kmsProvider = (String) metadata.get("kmsProvider");
-        keyvaultDbName = (String) metadata.get("keyvaultDbName");
-        keyvaultCollName = (String) metadata.get("keyvaultCollName");
+        String keyvaultDbName = (String) metadata.get("keyvaultDbName");
+        String keyvaultCollName = (String) metadata.get("keyvaultCollName");
         kvNs = String.format("%s.%s", keyvaultDbName, keyvaultCollName);
         kmsProviderCreds = Helpers.getKmsProviderCredentials(kmsProvider);
-        autoEncSettings = autoEnc(kmsProvider, kvNs, kmsProviderCreds);
+        autoEncSettings = autoEnc(kvNs, kmsProviderCreds);
     }
 
     @Override
@@ -43,14 +42,14 @@ public class AutoCSFLEClient extends BenchClient {
         client = MongoClients.create(clientSettings);
         coll = client.getDatabase(dbName).getCollection(collName);
         coll.drop();
-//        client.getDatabase(keyvaultDbName).getCollection(keyvaultCollName).drop();
+        hitMap = new HashMap<>();
     }
 
-    private AutoEncryptionSettings autoEnc(String kmsProvider, String kvNs,
-                                           Map<String, Map<String, Object>> kmsProviderCreds) {
-        var schemaMap = getSchemaMap();
+    private AutoEncryptionSettings autoEnc(String kvNs, Map<String, Map<String, Object>> kmsProviderCreds) {
+//        var schemaMap = getSchemaMap();
+        var schemaMap = schema.csfleFieldMap(getDek(), "04");
         Map<String, BsonDocument> schemaMapMap = new HashMap<>();
-        schemaMapMap.put(String.format("%s.%s", metadata.get("db"), metadata.get("coll")), schemaMap);
+        schemaMapMap.put(String.format("%s.%s", schema.getDbName(), schema.getCollName()), schemaMap);
         Map<String, Object> extras = new HashMap<>();
         extras.put("cryptSharedLibPath", Helpers.env("SHARED_LIB_PATH"));
         return AutoEncryptionSettings.builder()
@@ -108,6 +107,6 @@ public class AutoCSFLEClient extends BenchClient {
 
     @Override
     public String getName() {
-        return "com.mongodb.ps.qedemo.AutoCSFLEClient";
+        return "AutoCSFLEClient";
     }
 }

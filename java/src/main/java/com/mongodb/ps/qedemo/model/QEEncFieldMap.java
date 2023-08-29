@@ -10,20 +10,13 @@ class QueryTypeDoc {
     public QueryTypeDoc() {
         this.queryType = "equality";
     }
-
-    public String getQueryType() {
-        return queryType;
-    }
-
-    public void setQueryType(String queryType) {
-        this.queryType = queryType;
-    }
 }
 
 class FieldDoc {
     public String path;
     public String bsonType;
     public List<QueryTypeDoc> queries;
+    public String keyId = null;
 
     public FieldDoc(String path, String bsonType, boolean queryable) {
         this.path = path;
@@ -33,30 +26,6 @@ class FieldDoc {
             queries.add(new QueryTypeDoc());
         }
     }
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    public String getBsonType() {
-        return bsonType;
-    }
-
-    public void setBsonType(String bsonType) {
-        this.bsonType = bsonType;
-    }
-
-    public List<QueryTypeDoc> getQueries() {
-        return queries;
-    }
-
-    public void setQueries(List<QueryTypeDoc> queries) {
-        this.queries = queries;
-    }
 }
 
 public class QEEncFieldMap {
@@ -64,14 +33,6 @@ public class QEEncFieldMap {
 
     public QEEncFieldMap() {
         fields = new ArrayList<>();
-    }
-
-    public List<FieldDoc> getFields() {
-        return fields;
-    }
-
-    public void setFields(List<FieldDoc> fields) {
-        this.fields = fields;
     }
 
     public void addField(FieldDoc f) {

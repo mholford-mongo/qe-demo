@@ -19,7 +19,7 @@ public class Utils {
             if (!currDoc.containsKey(k)) {
                 throw new RuntimeException(String.format("Key %s not found", field));
             }
-            var val = doc.get(k);
+            var val = currDoc.get(k);
             if (val instanceof Document) {
                 currDoc = (Document) val;
             } else {
