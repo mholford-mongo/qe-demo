@@ -9,10 +9,7 @@ import com.mongodb.client.model.vault.DataKeyOptions;
 import com.mongodb.client.vault.ClientEncryptions;
 import com.mongodb.ps.qedemo.model.SchemaInfo;
 import org.bson.BsonDocument;
-import org.bson.Document;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,7 +43,6 @@ public class AutoCSFLEClient extends BenchClient {
     }
 
     private AutoEncryptionSettings autoEnc(String kvNs, Map<String, Map<String, Object>> kmsProviderCreds) {
-//        var schemaMap = getSchemaMap();
         var schemaMap = schema.csfleFieldMap(getDek(), "04");
         Map<String, BsonDocument> schemaMapMap = new HashMap<>();
         schemaMapMap.put(String.format("%s.%s", schema.getDbName(), schema.getCollName()), schemaMap);
@@ -58,35 +54,6 @@ public class AutoCSFLEClient extends BenchClient {
                 .schemaMap(schemaMapMap)
                 .extraOptions(extras)
                 .build();
-    }
-
-    private BsonDocument getSchemaMap() {
-        Document jsonSchema = new Document()
-                .append("bsonType", "object")
-                .append("encryptMetadata", new Document()
-                        .append("keyId", new ArrayList<>((Arrays.asList(new Document()
-                                .append("$binary", new Document()
-                                        .append("base64", getDek())
-                                        .append("subType", "04")))))))
-                .append("properties", new Document()
-                        .append("patientRecord", new Document()
-                                .append("bsonType", "object")
-                                .append("properties", new Document()
-                                        .append("ssn", new Document()
-                                                .append("encrypt", new Document()
-                                                        .append("bsonType", "string")
-                                                        .append("algorithm",
-                                                                "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic")))
-                                        .append("billing", new Document()
-                                                .append("bsonType", "object")
-                                                .append("properties", new Document()
-                                                        .append("number", new Document()
-                                                                .append("encrypt", new Document()
-                                                                        .append("bsonType", "int")
-                                                                        .append("algorithm",
-                                                                                "AEAD_AES_256_CBC_HMAC_SHA_512-Random"
-                                                                        ))))))));
-        return BsonDocument.parse(jsonSchema.toJson());
     }
 
     private String getDek() {

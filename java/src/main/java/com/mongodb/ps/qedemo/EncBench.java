@@ -48,7 +48,7 @@ public class EncBench {
         int batchSize = 1000;
         Map<String, Object> meta = Map.of("hitRate", 100, "reportRate", 1000);
         var plainClient = new BenchClient(uri, meta, schema);
-        System.out.println("Benchmarking com.mongodb.ps.qedemo.PlainClient");
+        System.out.println("Benchmarking PlainClient");
         plainClient.initClient();
         plainClient.batchedInsert(numDocs, batchSize);
         plainClient.find();
