@@ -1,3 +1,8 @@
 .idea/
 target/
 bin/
+java/.env
+data/
+.env
+*.pyc
+*.iml

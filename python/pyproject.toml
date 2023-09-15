@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "qe-training"
+version = "0.1.0"
+description = ""
+authors = ["Matt Holford <matt.holford@mongodb.com>"]
+readme = "README.md"
+packages = [{include = "qe_training"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pymongo = "^4.5.0"
+python-dotenv = "^1.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+

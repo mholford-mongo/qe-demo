@@ -15,11 +15,12 @@ public class EncBench {
         fields.add(new FieldInfo("patientRecord.billing.number", "int", true, RandomDocs::randBillingNumber));
         var schema = new SchemaInfo("medicalRecords", "patients", fields);
 
+
 //        execPlainClient(uri, numDocs, schema);
 //
-//        execQEClient(uri, numDocs, schema);
-//
-        execAutoCSFLEClient(uri, numDocs, schema);
+        execQEClient(uri, numDocs, schema);
+
+//        execAutoCSFLEClient(uri, numDocs, schema);
     }
 
     private static void execQEClient(String uri, int numDocs, SchemaInfo schema) {
@@ -36,7 +37,7 @@ public class EncBench {
     private static void execAutoCSFLEClient(String uri, int numDocs, SchemaInfo schema) {
         Map<String, Object> meta = Map.of("kmsProvider", "local",
                 "keyvaultDbName", "encryption", "keyvaultCollName",
-                "__keyVault",  "hitRate", 100, "reportRate", 1000);
+                "__keyVault", "hitRate", 100, "reportRate", 1000);
         var autoCsfleClient = new AutoCSFLEClient(uri, meta, schema);
         System.out.println("Benchmarking AutoCSFLEClient");
         autoCsfleClient.initClient();
